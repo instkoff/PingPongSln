@@ -11,8 +11,9 @@ namespace PongApp.Controllers
 {
     public class MessageController : BaseController
     {
-        private readonly IMessageService _messageService;
         private readonly ILogger<MessageController> _logger;
+        private readonly IMessageService _messageService;
+
         public MessageController(IMessageService messageService, ILogger<MessageController> logger)
         {
             _messageService = messageService;
@@ -30,17 +31,13 @@ namespace PongApp.Controllers
 
             var result = await _messageService.AddMessageAsync(messageRequest);
 
-            if (result == Guid.Empty)
-            {
-                throw new AddMessageException("Unexpected. Add message failed.");
-            }
+            if (result == Guid.Empty) throw new AddMessageException("Unexpected. Add message failed.");
 
             return Ok(new AddMessageResponse
             {
                 Id = result,
                 Status = 1
             });
-
         }
 
         [HttpPost("list")]

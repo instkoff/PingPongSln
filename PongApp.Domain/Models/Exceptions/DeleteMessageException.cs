@@ -6,7 +6,6 @@ namespace PongApp.Domain.Models.Exceptions
     {
         public DeleteMessageException(string message) : base(message)
         {
-            
         }
     }
 }

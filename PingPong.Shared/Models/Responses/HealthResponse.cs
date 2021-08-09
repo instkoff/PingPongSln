@@ -2,11 +2,11 @@
 
 namespace PingPong.Shared.Models.Responses
 {
-    public class HealthResponse : BaseResponse
+    public class HealthResponse
     {
         public string Status { get; set; }
 
-        public string TotalDuration{ get; set; }
+        public string TotalDuration { get; set; }
 
         public Dictionary<string, HealthEntry> Entries { get; set; }
     }

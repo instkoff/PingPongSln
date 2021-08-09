@@ -15,17 +15,15 @@ namespace PongApp.Domain.Models.HealthChecks
             _dbContext = dbContext;
         }
 
-        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context, CancellationToken cancellationToken = new CancellationToken())
+        public async Task<HealthCheckResult> CheckHealthAsync(HealthCheckContext context,
+            CancellationToken cancellationToken = new())
         {
             try
             {
                 if (await _dbContext.CanConnectToDatabaseAsync(cancellationToken))
-                {
                     return HealthCheckResult.Healthy("DbContextCheck passed.");
-                }
 
                 return HealthCheckResult.Unhealthy("DbContextCheck could not connect to database.");
-
             }
             catch (Exception e)
             {

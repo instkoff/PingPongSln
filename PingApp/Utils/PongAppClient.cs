@@ -3,7 +3,6 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
-using PingApp.Models;
 using PingApp.Models.Settings;
 using PingPong.Shared.Models.Requests;
 using PingPong.Shared.Models.Responses;
@@ -20,54 +19,46 @@ namespace PingApp.Utils
             _httpClient.BaseAddress = new Uri(settings.Value.ApiEndpoint);
         }
 
-        public async Task<BaseResponse> AddMessageCommand(AddMessageRequest request)
+        public async Task<AddMessageResponse> AddMessageCommand(AddMessageRequest request)
         {
-            var result = await _httpClient.PostAsJsonAsync("/Message/add", request);
+            var result = await _httpClient.PostAsJsonAsync("/api/Message/add", request);
 
-            if (result.IsSuccessStatusCode)
-            {
-                return await result.Content.ReadFromJsonAsync<AddMessageResponse>();
-            }
+            if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<AddMessageResponse>();
 
-            return await result.Content.ReadFromJsonAsync<ErrorResponse>();
+            var errorResponse = await result.Content.ReadFromJsonAsync<ErrorResponse>();
 
+            throw new HttpRequestException($"{errorResponse?.ErrorMessage}", null, result.StatusCode);
         }
 
-        public async Task<BaseResponse> ListCommand(GetMessageRequest request)
+        public async Task<MessageListResponse> ListCommand(GetMessageRequest request)
         {
-            var result = await _httpClient.PostAsJsonAsync("/Message/list", request);
+            var result = await _httpClient.PostAsJsonAsync("/api/Message/list", request);
 
-            if (result.IsSuccessStatusCode)
-            {
-                return await result.Content.ReadFromJsonAsync<MessageListResponse>();
-            }
+            if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<MessageListResponse>();
 
-            return await result.Content.ReadFromJsonAsync<ErrorResponse>();
+            var errorResponse = await result.Content.ReadFromJsonAsync<ErrorResponse>();
 
+            throw new HttpRequestException($"{errorResponse?.ErrorMessage}", null, result.StatusCode);
         }
 
         public async Task<BaseResponse> DeleteMessageCommand(GetMessageRequest request)
         {
-            var result = await _httpClient.PostAsJsonAsync("/Message/delete", request);
+            var result = await _httpClient.PostAsJsonAsync("/api/Message/delete", request);
 
-            if (result.IsSuccessStatusCode)
-            {
-                return await result.Content.ReadFromJsonAsync<BaseResponse>();
-            }
+            if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<BaseResponse>();
 
-            return await result.Content.ReadFromJsonAsync<ErrorResponse>();
+            var errorResponse = await result.Content.ReadFromJsonAsync<ErrorResponse>();
+
+            throw new HttpRequestException($"{errorResponse?.ErrorMessage}", null, result.StatusCode);
         }
 
-        public async Task<BaseResponse> GetServiceStatus()
+        public async Task<HealthResponse> GetServiceStatus()
         {
             var result = await _httpClient.GetAsync("/health");
 
-            if (result.IsSuccessStatusCode)
-            {
-                return await result.Content.ReadFromJsonAsync<HealthResponse>();
-            }
+            if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<HealthResponse>();
 
-            return await result.Content.ReadFromJsonAsync<ErrorResponse>();
+            return new HealthResponse { Status = "Unhealthy" };
         }
     }
 }

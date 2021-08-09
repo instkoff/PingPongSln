@@ -10,7 +10,6 @@ namespace PongApp
 {
     public static class ServiceCollectionExtension
     {
-
         public static IServiceCollection AddDatabase(this IServiceCollection services, IConfiguration configuration)
         {
             services.AddDbContext<AppDbContext>(builder =>
@@ -26,10 +25,7 @@ namespace PongApp
 
         public static IServiceCollection AddSwagger(this IServiceCollection services)
         {
-            services.AddSwaggerGen(c =>
-            {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "PongApp", Version = "v1" });
-            });
+            services.AddSwaggerGen(c => { c.SwaggerDoc("v1", new OpenApiInfo { Title = "PongApp", Version = "v1" }); });
             return services;
         }
 
@@ -41,6 +37,5 @@ namespace PongApp
 
             return builder;
         }
-
     }
 }

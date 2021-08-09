@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -26,20 +25,25 @@ namespace PongApp.Domain.Services
 
         public async Task<Guid> AddMessageAsync(AddMessageRequest messageRequest)
         {
-            if (messageRequest == null) throw new ArgumentNullException(nameof(messageRequest), "Unexpected. Message request is null.");
-            if (string.IsNullOrEmpty(messageRequest.User)) throw new ArgumentException("Unexpected. Username is empty.", nameof(messageRequest.User));
+            if (messageRequest == null)
+                throw new ArgumentNullException(nameof(messageRequest), "Unexpected. Message request is null.");
+            if (string.IsNullOrEmpty(messageRequest.User))
+                throw new ArgumentException("Unexpected. Username is empty.", nameof(messageRequest.User));
 
-            var userEntity = _dbContext.Users.FirstOrDefault(x=>x.Name == messageRequest.User);
-            var messageEntity = _mapper.Map<MessageEntity>(messageRequest);
+            var userEntity = _dbContext.Users.FirstOrDefault(x => x.Name == messageRequest.User);
+
+            var messageEntity = new MessageEntity
+            {
+                MessageText = messageRequest.Message
+            };
 
             if (userEntity != null)
-            {
                 messageEntity.UserId = userEntity.Id;
-            }
             else
-            {
-                messageEntity.User = new UserEntity { Name = messageRequest.User };
-            }
+                messageEntity.User = new UserEntity
+                {
+                    Name = messageRequest.User
+                };
 
             var addResult = await _dbContext.Messages.AddAsync(messageEntity);
             await _dbContext.SaveChangesAsync();
@@ -49,16 +53,14 @@ namespace PongApp.Domain.Services
 
         public async Task<MessageDto[]> GetMessageListAsync(GetMessageRequest request)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request), "Unexpected. Message request is null.");
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Unexpected. Message request is null.");
 
             var query = _dbContext.Messages
                 .Include(m => m.User)
                 .Where(x => x.User.Name == request.User);
 
-            if (request.MessageId != Guid.Empty)
-            {
-                query = query.Where(x => x.Id == request.MessageId);
-            }
+            if (request.MessageId != Guid.Empty) query = query.Where(x => x.Id == request.MessageId);
 
             var result = await query.ToArrayAsync();
             return _mapper.Map<MessageDto[]>(result);
@@ -66,7 +68,8 @@ namespace PongApp.Domain.Services
 
         public async Task<int> DeleteMessageAsync(GetMessageRequest request)
         {
-            if (request == null) throw new ArgumentNullException(nameof(request), "Unexpected. Message request is null.");
+            if (request == null)
+                throw new ArgumentNullException(nameof(request), "Unexpected. Message request is null.");
 
             var messageEntity = await _dbContext.Messages
                 .Include(m => m.User)
@@ -74,13 +77,12 @@ namespace PongApp.Domain.Services
                 .FirstOrDefaultAsync(x => x.User.Name == request.User && x.Id == request.MessageId);
 
             if (messageEntity == null)
-            {
-                throw new MessageNotFoundException($"Message not found.\n MessageId: {request.MessageId}\n Username: {request.User}");
-            }
+                throw new MessageNotFoundException(
+                    $"Message not found.\n MessageId: {request.MessageId}\n Username: {request.User}");
 
             _dbContext.Messages.Remove(messageEntity);
 
-             return await _dbContext.SaveChangesAsync();
+            return await _dbContext.SaveChangesAsync();
         }
     }
 }

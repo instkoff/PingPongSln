@@ -1,10 +1,10 @@
+using AutoMapper.EquivalencyExpression;
+using HealthChecks.UI.Client;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using AutoMapper.EquivalencyExpression;
-using HealthChecks.UI.Client;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using PongApp.Domain.Infrastructure.Interfaces.Services;
 using PongApp.Domain.Services;
 using PongApp.Domain.Utils;
@@ -30,7 +30,7 @@ namespace PongApp
             services.AddAutoMapper(config => config.AddCollectionMappers(),
                 typeof(AutoMapperProfile));
             services.AddCustomHealthChecks();
-            services.AddHealthChecksUI(s=>s.AddHealthCheckEndpoint("endpoint1", "https://localhost:5001/health"))
+            services.AddHealthChecksUI(s => s.AddHealthCheckEndpoint("endpoint1", "https://localhost:5001/health"))
                 .AddInMemoryStorage();
             services.AddScoped<IMessageService, MessageService>();
         }
@@ -54,7 +54,7 @@ namespace PongApp
             {
                 endpoints.MapControllers();
                 endpoints.MapHealthChecksUI();
-                endpoints.MapHealthChecks("/health", new HealthCheckOptions()
+                endpoints.MapHealthChecks("/health", new HealthCheckOptions
                 {
                     Predicate = _ => true,
                     ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse

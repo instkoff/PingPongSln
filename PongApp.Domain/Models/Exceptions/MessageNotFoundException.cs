@@ -6,7 +6,6 @@ namespace PongApp.Domain.Models.Exceptions
     {
         public MessageNotFoundException(string message) : base(message)
         {
-            
         }
     }
 }

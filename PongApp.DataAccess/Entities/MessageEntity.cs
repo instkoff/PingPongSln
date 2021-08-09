@@ -8,6 +8,6 @@ namespace PongApp.DataAccess.Entities
 
         public Guid UserId { get; set; }
 
-        public UserEntity User {get; set; }
+        public UserEntity User { get; set; }
     }
 }

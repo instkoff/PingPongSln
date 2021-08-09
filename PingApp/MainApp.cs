@@ -1,23 +1,25 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Net.Http;
-using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Options;
+using PingApp.Models.Settings;
 using PingApp.Utils;
-using PingPong.Shared.Models.Responses;
+using PingPong.Shared.Models.Requests;
 
 namespace PingApp
 {
     public class MainApp
     {
         private readonly PongAppClient _pongAppClient;
+        private readonly AppSettings _settings;
 
-        public MainApp(PongAppClient pongAppClient)
+        public MainApp(PongAppClient pongAppClient, IOptions<AppSettings> settings)
         {
             _pongAppClient = pongAppClient;
+            _settings = settings.Value;
         }
 
-        public void Execute()
+        public async Task Execute()
         {
             while (true)
             {
@@ -26,23 +28,20 @@ namespace PingApp
                 var keyInfo = Console.ReadKey(true);
                 Console.WriteLine("\n");
 
-                if (keyInfo.Key == ConsoleKey.Q)
-                {
-                    break;
-                }
+                if (keyInfo.Key == ConsoleKey.Q) break;
                 switch (keyInfo.Key)
                 {
                     case ConsoleKey.S:
-                        GetApiStatus();
+                        await GetApiStatus();
                         break;
                     case ConsoleKey.A:
-                        AddMessage();
+                        await AddMessage();
                         break;
                     case ConsoleKey.L:
-                        ListMessages();
+                        await ListMessages();
                         break;
                     case ConsoleKey.D:
-                        DeleteMessafe();
+                        await DeleteMessage();
                         break;
                 }
             }
@@ -61,17 +60,124 @@ namespace PingApp
 
         private async Task GetApiStatus()
         {
-            var result = await _pongAppClient.GetServiceStatus();
-            if (result.Status == 0)
+            try
             {
-                var errorResponse = result as ErrorResponse;
-                Console.WriteLine("Get api status error.");
-                Console.WriteLine(errorResponse?.ErrorMessage);
+                var response = await _pongAppClient.GetServiceStatus();
+                Console.WriteLine($"Overall status: {response?.Status}");
+                if (response?.Entries != null)
+                    foreach (var responseEntry in response?.Entries)
+                    {
+                        Console.WriteLine($"\t {responseEntry.Key}:");
+                        Console.WriteLine($"\t Status: {responseEntry.Value.Status}");
+                        Console.WriteLine($"\t Description: {responseEntry.Value.Description}");
+                    }
             }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"{e.StatusCode} - {e.Message}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
 
-            var 
-            Console.WriteLine(result.Status);
+        private async Task AddMessage()
+        {
+            try
+            {
+                Console.WriteLine("Enter the message:");
+                var messageText = Console.ReadLine();
+                var request = new AddMessageRequest
+                {
+                    Message = messageText,
+                    User = _settings.Username
+                };
+                var response = await _pongAppClient.AddMessageCommand(request);
+                Console.WriteLine($"Status: {response.Status}");
+                Console.WriteLine($"Message Id: {response.Id}");
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"{e.StatusCode} - {e.Message}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
 
+        private async Task ListMessages()
+        {
+            try
+            {
+                Console.WriteLine("Enter message Id (Guid) or press Enter for print all your messages:");
+                bool parseResult;
+                var messageGuid = Guid.Empty;
+
+                do
+                {
+                    var messageId = Console.ReadLine();
+                    if (string.IsNullOrEmpty(messageId)) break;
+                    parseResult = Guid.TryParse(messageId, out messageGuid);
+                    if (!parseResult) Console.WriteLine("Guid parsing error! Try again...");
+                } while (!parseResult);
+
+                var request = new GetMessageRequest
+                {
+                    MessageId = messageGuid,
+                    User = _settings.Username
+                };
+
+                var response = await _pongAppClient.ListCommand(request);
+
+                Console.WriteLine($"Status: {response.Status}");
+
+                foreach (var message in response.Messages)
+                {
+                    Console.WriteLine($"Message Id: {message.Id}");
+                    Console.WriteLine($"Message text: {message.MessageText}");
+                }
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"{e.StatusCode} - {e.Message}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+        }
+
+        private async Task DeleteMessage()
+        {
+            try
+            {
+                Console.WriteLine("Enter message Id:");
+                var idStr = Console.ReadLine();
+                if (idStr == null)
+                {
+                    Console.WriteLine("Message Id cannot be empty!.");
+                    return;
+                }
+
+                var request = new GetMessageRequest
+                {
+                    MessageId = Guid.Parse(idStr),
+                    User = _settings.Username
+                };
+
+                var response = await _pongAppClient.DeleteMessageCommand(request);
+                Console.WriteLine($"Status: {response.Status}");
+            }
+            catch (HttpRequestException e)
+            {
+                Console.WriteLine($"{e.StatusCode} - {e.Message}");
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
         }
     }
 }
