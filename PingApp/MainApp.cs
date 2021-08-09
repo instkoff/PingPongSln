@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Options;
@@ -120,7 +121,7 @@ namespace PingApp
                     var messageId = Console.ReadLine();
                     if (string.IsNullOrEmpty(messageId)) break;
                     parseResult = Guid.TryParse(messageId, out messageGuid);
-                    if (!parseResult) Console.WriteLine("Guid parsing error! Try again...");
+                    if (!parseResult) Console.WriteLine("Guid parsing error! Try again or press Enter.");
                 } while (!parseResult);
 
                 var request = new GetMessageRequest
@@ -132,6 +133,12 @@ namespace PingApp
                 var response = await _pongAppClient.ListCommand(request);
 
                 Console.WriteLine($"Status: {response.Status}");
+
+                if (!response.Messages.Any())
+                {
+                    Console.WriteLine("Messages not found!");
+                    return;
+                }
 
                 foreach (var message in response.Messages)
                 {
@@ -155,7 +162,7 @@ namespace PingApp
             {
                 Console.WriteLine("Enter message Id:");
                 var idStr = Console.ReadLine();
-                if (idStr == null)
+                if (string.IsNullOrEmpty(idStr))
                 {
                     Console.WriteLine("Message Id cannot be empty!.");
                     return;

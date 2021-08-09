@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
@@ -25,9 +26,7 @@ namespace PingApp.Utils
 
             if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<AddMessageResponse>();
 
-            var errorResponse = await result.Content.ReadFromJsonAsync<ErrorResponse>();
-
-            throw new HttpRequestException($"{errorResponse?.ErrorMessage}", null, result.StatusCode);
+           throw await ProcessError(result);
         }
 
         public async Task<MessageListResponse> ListCommand(GetMessageRequest request)
@@ -36,9 +35,7 @@ namespace PingApp.Utils
 
             if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<MessageListResponse>();
 
-            var errorResponse = await result.Content.ReadFromJsonAsync<ErrorResponse>();
-
-            throw new HttpRequestException($"{errorResponse?.ErrorMessage}", null, result.StatusCode);
+            throw await ProcessError(result);
         }
 
         public async Task<BaseResponse> DeleteMessageCommand(GetMessageRequest request)
@@ -47,9 +44,7 @@ namespace PingApp.Utils
 
             if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<BaseResponse>();
 
-            var errorResponse = await result.Content.ReadFromJsonAsync<ErrorResponse>();
-
-            throw new HttpRequestException($"{errorResponse?.ErrorMessage}", null, result.StatusCode);
+            throw await ProcessError(result);
         }
 
         public async Task<HealthResponse> GetServiceStatus()
@@ -59,6 +54,18 @@ namespace PingApp.Utils
             if (result.IsSuccessStatusCode) return await result.Content.ReadFromJsonAsync<HealthResponse>();
 
             return new HealthResponse { Status = "Unhealthy" };
+        }
+
+        private async Task<HttpRequestException> ProcessError(HttpResponseMessage result)
+        {
+            if (result.StatusCode is HttpStatusCode.BadRequest or HttpStatusCode.InternalServerError)
+            {
+                var errorResponse = await result.Content.ReadFromJsonAsync<ErrorResponse>();
+                return new HttpRequestException($"{errorResponse?.ErrorMessage}", null, result.StatusCode);
+            }
+
+            var error = await result.Content.ReadAsStringAsync();
+            return new HttpRequestException($"{error}", null, result.StatusCode);
         }
     }
 }

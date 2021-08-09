@@ -6,6 +6,9 @@ using PongApp.DataAccess.Infrastructure.Interfaces;
 
 namespace PongApp.Domain.Models.HealthChecks
 {
+    /// <summary>
+    /// Проверка существования базы. Результат будет отображаться в мониторинге.
+    /// </summary>
     public class DbContextCheck : IHealthCheck
     {
         private readonly IDbContext _dbContext;

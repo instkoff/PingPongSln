@@ -9,6 +9,10 @@ using PongApp.Domain.Models.Exceptions;
 
 namespace PongApp.Utils
 {
+    /// <summary>
+    /// Промежуточное ПО для работы с исключениями.
+    /// Глобально перехватывает и возвращает ответ.
+    /// </summary>
     public class ErrorHandlingMiddleware
     {
         private readonly ILogger<ErrorHandlingMiddleware> _logger;

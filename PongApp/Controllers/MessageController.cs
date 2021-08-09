@@ -2,10 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using PingPong.Shared.Models.Requests;
 using PingPong.Shared.Models.Responses;
 using PongApp.Domain.Infrastructure.Interfaces.Services;
 using PongApp.Domain.Models.Exceptions;
-using PongApp.Domain.Models.Request;
 
 namespace PongApp.Controllers
 {

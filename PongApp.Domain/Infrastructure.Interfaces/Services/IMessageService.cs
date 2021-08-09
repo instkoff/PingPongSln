@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using PingPong.Shared.Models.Dto;
-using PongApp.Domain.Models.Request;
+using PingPong.Shared.Models.Requests;
 
 namespace PongApp.Domain.Infrastructure.Interfaces.Services
 {
+    /// <summary>
+    /// Интерфейс сервиса сообщений
+    /// </summary>
     public interface IMessageService
     {
         Task<Guid> AddMessageAsync(AddMessageRequest message);

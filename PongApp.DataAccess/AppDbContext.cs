@@ -6,6 +6,9 @@ using PongApp.DataAccess.Infrastructure.Interfaces;
 
 namespace PongApp.DataAccess
 {
+    /// <summary>
+    /// Контекст БД
+    /// </summary>
     public class AppDbContext : DbContext, IDbContext
     {
         public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)

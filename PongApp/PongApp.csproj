@@ -36,10 +36,4 @@
     <ProjectReference Include="..\PongApp.Domain\PongApp.Domain.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="PongDb.db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
 </Project>

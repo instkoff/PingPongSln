@@ -4,14 +4,17 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using PingPong.Shared.Models.Dto;
+using PingPong.Shared.Models.Requests;
 using PongApp.DataAccess.Entities;
 using PongApp.DataAccess.Infrastructure.Interfaces;
 using PongApp.Domain.Infrastructure.Interfaces.Services;
 using PongApp.Domain.Models.Exceptions;
-using PongApp.Domain.Models.Request;
 
 namespace PongApp.Domain.Services
 {
+    /// <summary>
+    /// Сервис работы с сообщениями
+    /// </summary>
     public class MessageService : IMessageService
     {
         private readonly IDbContext _dbContext;

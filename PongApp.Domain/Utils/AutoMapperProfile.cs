@@ -5,6 +5,9 @@ using PongApp.DataAccess.Entities;
 
 namespace PongApp.Domain.Utils
 {
+    /// <summary>
+    /// Профиль для маппинга объектов
+    /// </summary>
     public class AutoMapperProfile : Profile
     {
         public AutoMapperProfile()
