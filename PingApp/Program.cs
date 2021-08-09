@@ -17,11 +17,12 @@ namespace PingApp
 
         private static IServiceProvider ConfigureServices(IConfiguration config)
         {
-            return new ServiceCollection()
-                .Configure<AppSettings>(config.GetSection(nameof(AppSettings)))
-                .AddSingleton<MainApp>()
-                .AddHttpClient()
-                .BuildServiceProvider();
+            var services = new ServiceCollection();
+            services.Configure<AppSettings>(config.GetSection(nameof(AppSettings)));
+            services.AddSingleton<MainApp>();
+            services.AddHttpClientWithSettings(config);
+
+            return services.BuildServiceProvider();
         }
 
         private static IConfiguration BuildConfiguration(string[] args)

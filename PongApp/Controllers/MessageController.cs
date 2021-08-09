@@ -53,6 +53,7 @@ namespace PongApp.Controllers
             }
 
             var messages = await _messageService.GetMessageListAsync(request);
+
             return Ok(new MessageListResponse
             {
                 Messages = messages,
