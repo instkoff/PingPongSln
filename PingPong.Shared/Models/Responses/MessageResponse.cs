@@ -1,6 +1,6 @@
-﻿using PongApp.Domain.Models.Dto;
+﻿using PingPong.Shared.Models.Dto;
 
-namespace PongApp.Domain.Models.Responses
+namespace PingPong.Shared.Models.Responses
 {
     public class MessageResponse : BaseResponse
     {

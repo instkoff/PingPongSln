@@ -2,11 +2,10 @@
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using PingPong.Shared.Models.Responses;
 using PongApp.Domain.Infrastructure.Interfaces.Services;
-using PongApp.Domain.Models.Dto;
 using PongApp.Domain.Models.Exceptions;
 using PongApp.Domain.Models.Request;
-using PongApp.Domain.Models.Responses;
 
 namespace PongApp.Controllers
 {
@@ -21,15 +20,15 @@ namespace PongApp.Controllers
         }
 
         [HttpPost("add")]
-        public async Task<IActionResult> Add(MessageDto messageDto)
+        public async Task<IActionResult> Add(AddMessageRequest messageRequest)
         {
-            if (messageDto == null)
+            if (messageRequest == null)
             {
                 _logger.LogError("Message model can't be null.");
-                throw new ArgumentNullException(nameof(messageDto), "Unexpected. Message model can't be null.");
+                throw new ArgumentNullException(nameof(messageRequest), "Unexpected. Message request can't be null.");
             }
 
-            var result = await _messageService.AddMessageAsync(messageDto);
+            var result = await _messageService.AddMessageAsync(messageRequest);
 
             if (result == Guid.Empty)
             {
@@ -45,7 +44,7 @@ namespace PongApp.Controllers
         }
 
         [HttpPost("list")]
-        public async Task<IActionResult> List(MessageRequest request)
+        public async Task<IActionResult> List(GetMessageRequest request)
         {
             if (request == null)
             {
@@ -53,24 +52,16 @@ namespace PongApp.Controllers
                 throw new ArgumentNullException(nameof(request), "Unexpected. Request can't be null.");
             }
 
-            if (request.MessageId == Guid.Empty)
+            var messages = await _messageService.GetMessageListAsync(request);
+            return Ok(new MessageListResponse
             {
-                return Ok(new MessageListResponse
-                {
-                    Messages = await _messageService.GetMessageListAsync(request.Username),
-                    Status = 1
-                });
-            }
-
-            return Ok(new MessageResponse 
-            {
-                Message = await _messageService.GetMessageAsync(request),
+                Messages = messages,
                 Status = 1
             });
         }
 
         [HttpPost("delete")]
-        public async Task<IActionResult> Delete(MessageRequest request)
+        public async Task<IActionResult> Delete(GetMessageRequest request)
         {
             if (request == null)
             {

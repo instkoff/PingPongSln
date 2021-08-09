@@ -1,12 +1,13 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
+using PingPong.Shared.Models.Dto;
 using PongApp.DataAccess.Entities;
 using PongApp.DataAccess.Infrastructure.Interfaces;
 using PongApp.Domain.Infrastructure.Interfaces.Services;
-using PongApp.Domain.Models.Dto;
 using PongApp.Domain.Models.Exceptions;
 using PongApp.Domain.Models.Request;
 
@@ -23,12 +24,13 @@ namespace PongApp.Domain.Services
             _mapper = mapper;
         }
 
-        public async Task<Guid> AddMessageAsync(MessageDto message)
+        public async Task<Guid> AddMessageAsync(AddMessageRequest messageRequest)
         {
-            if (message == null) throw new ArgumentNullException(nameof(message), "Unexpected. Message request is null.");
+            if (messageRequest == null) throw new ArgumentNullException(nameof(messageRequest), "Unexpected. Message request is null.");
+            if (string.IsNullOrEmpty(messageRequest.User)) throw new ArgumentException("Unexpected. Username is empty.", nameof(messageRequest.User));
 
-            var userEntity = _dbContext.Users.FirstOrDefault(x=>x.Name == message.UserName);
-            var messageEntity = _mapper.Map<MessageEntity>(message);
+            var userEntity = _dbContext.Users.FirstOrDefault(x=>x.Name == messageRequest.User);
+            var messageEntity = _mapper.Map<MessageEntity>(messageRequest);
 
             if (userEntity != null)
             {
@@ -36,7 +38,7 @@ namespace PongApp.Domain.Services
             }
             else
             {
-                messageEntity.User = new UserEntity { Name = message.UserName };
+                messageEntity.User = new UserEntity { Name = messageRequest.User };
             }
 
             var addResult = await _dbContext.Messages.AddAsync(messageEntity);
@@ -45,52 +47,35 @@ namespace PongApp.Domain.Services
             return addResult.Entity.Id;
         }
 
-        public async Task<MessageDto[]> GetMessageListAsync(string username)
+        public async Task<MessageDto[]> GetMessageListAsync(GetMessageRequest request)
         {
-            if (string.IsNullOrEmpty(username)) throw new ArgumentException("Unexpected. Username is empty.", nameof(username));
+            if (request == null) throw new ArgumentNullException(nameof(request), "Unexpected. Message request is null.");
 
-            var userEntity = await _dbContext.Users
-                .Include(u => u.Messages)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.Name == username);
+            var query = _dbContext.Messages
+                .Include(m => m.User)
+                .Where(x => x.User.Name == request.User);
 
-            if (userEntity == null)
+            if (request.MessageId != Guid.Empty)
             {
-                throw new UserNotFoundException($"User with name {username} not found.");
+                query = query.Where(x => x.Id == request.MessageId);
             }
 
-            return _mapper.Map<MessageDto[]>(userEntity.Messages);
+            var result = await query.ToArrayAsync();
+            return _mapper.Map<MessageDto[]>(result);
         }
 
-        public async Task<MessageDto> GetMessageAsync(MessageRequest request)
+        public async Task<int> DeleteMessageAsync(GetMessageRequest request)
         {
             if (request == null) throw new ArgumentNullException(nameof(request), "Unexpected. Message request is null.");
 
             var messageEntity = await _dbContext.Messages
                 .Include(m => m.User)
                 .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.User.Name == request.Username && x.Id == request.MessageId);
+                .FirstOrDefaultAsync(x => x.User.Name == request.User && x.Id == request.MessageId);
 
             if (messageEntity == null)
             {
-                throw new MessageNotFoundException($"Message not found.\n MessageId: {request.MessageId}\n Username: {request.Username}");
-            }
-
-            return _mapper.Map<MessageDto>(messageEntity);
-        }
-
-        public async Task<int> DeleteMessageAsync(MessageRequest request)
-        {
-            if (request == null) throw new ArgumentNullException(nameof(request), "Unexpected. Message request is null.");
-
-            var messageEntity = await _dbContext.Messages
-                .Include(m => m.User)
-                .AsNoTracking()
-                .FirstOrDefaultAsync(x => x.User.Name == request.Username && x.Id == request.MessageId);
-
-            if (messageEntity == null)
-            {
-                throw new MessageNotFoundException($"Message not found.\n MessageId: {request.MessageId}\n Username: {request.Username}");
+                throw new MessageNotFoundException($"Message not found.\n MessageId: {request.MessageId}\n Username: {request.User}");
             }
 
             _dbContext.Messages.Remove(messageEntity);

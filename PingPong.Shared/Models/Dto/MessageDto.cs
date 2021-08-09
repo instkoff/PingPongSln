@@ -1,4 +1,4 @@
-﻿namespace PongApp.Domain.Models.Dto
+﻿namespace PingPong.Shared.Models.Dto
 {
     public class MessageDto : BaseDto
     {

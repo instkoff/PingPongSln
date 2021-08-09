@@ -1,4 +1,4 @@
-﻿namespace PongApp.Domain.Models.Responses
+﻿namespace PingPong.Shared.Models.Responses
 {
     public class ErrorResponse : BaseResponse
     {

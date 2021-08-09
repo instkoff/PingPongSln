@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace PongApp.Domain.Models.Dto
+namespace PingPong.Shared.Models.Dto
 {
     public class UserDto : BaseDto
     {

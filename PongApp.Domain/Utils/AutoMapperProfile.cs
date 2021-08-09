@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using AutoMapper;
 using AutoMapper.EquivalencyExpression;
+using PingPong.Shared.Models.Dto;
 using PongApp.DataAccess.Entities;
-using PongApp.Domain.Models.Dto;
 
 namespace PongApp.Domain.Utils
 {

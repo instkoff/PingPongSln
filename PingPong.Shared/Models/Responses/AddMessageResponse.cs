@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PongApp.Domain.Models.Responses
+namespace PingPong.Shared.Models.Responses
 {
     public class AddMessageResponse : BaseResponse
     {

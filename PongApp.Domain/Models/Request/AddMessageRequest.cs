@@ -4,10 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PongApp.Domain.Models.Responses
+namespace PongApp.Domain.Models.Request
 {
-    public class BaseResponse
+    public class AddMessageRequest : BaseRequest
     {
-        public int Status { get; init; }
+        public string Message { get; set; }
     }
 }

@@ -11,6 +11,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\PingPong.Shared\PingPong.Shared.csproj" />
     <ProjectReference Include="..\PongApp.DataAccess\PongApp.DataAccess.csproj" />
   </ItemGroup>
 

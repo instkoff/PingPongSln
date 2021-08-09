@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Threading.Tasks;
-using PongApp.Domain.Models.Dto;
+using PingPong.Shared.Models.Dto;
 using PongApp.Domain.Models.Request;
-using PongApp.Domain.Models.Responses;
 
 namespace PongApp.Domain.Infrastructure.Interfaces.Services
 {
     public interface IMessageService
     {
-        Task<Guid> AddMessageAsync(MessageDto message);
+        Task<Guid> AddMessageAsync(AddMessageRequest message);
 
-        Task<MessageDto[]> GetMessageListAsync(string userName);
+        Task<MessageDto[]> GetMessageListAsync(GetMessageRequest request);
 
-        Task<MessageDto> GetMessageAsync(MessageRequest request);
-
-        Task<int> DeleteMessageAsync(MessageRequest messageRequest);
+        Task<int> DeleteMessageAsync(GetMessageRequest getMessageRequest);
     }
 }
